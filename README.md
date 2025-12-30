@@ -56,6 +56,9 @@ The very basic steps needed for a user to get the module up and running. This
 can include setup steps, if necessary, or it can be an example of the most basic
 use of the module.
 
+[![yamllint](https://github.com/ncsa/puppet-profile_kolla_ansible/actions/workflows/yamllint.yml/badge.svg)](https://github.com/ncsa/puppet-profile_kolla_ansible/actions/workflows/yamllint.yml)
+
+[![pdk-validate](https://github.com/ncsa/puppet-profile_kolla_ansible/actions/workflows/pdk-validate.yml/badge.svg)](https://github.com/ncsa/puppet-profile_kolla_ansible/actions/workflows/pdk-validate.yml)
 ## Usage
 
 Include usage examples for common use cases in the **Usage** section. Show your
