@@ -14,7 +14,10 @@
 # @example
 #   include profile_kolla_ansible
 class profile_kolla_ansible {
+  include python
+
   # Install dependencies
+  # https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html
   $deps = [
     'git',
     'python3-devel',
@@ -167,8 +170,9 @@ class profile_kolla_ansible {
   $create_link = lookup ('profile_kolla_ansible::link_cluster_to_venv')
   if $create_link {
     file { "${kolla_deploy}/${cluster}":
-      ensure => 'link',
-      target => $kolla_venv,
+      ensure  => 'link',
+      target  => $kolla_venv,
+      require => File[$kolla_venv],
     }
   }
 }
