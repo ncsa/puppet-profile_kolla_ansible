@@ -8,7 +8,7 @@
   "dependencies": [
     {
       "name": "puppet/python",
-      "version_requirement": ">= 8.x"
+      "version_requirement": ">= 8.0.0"
     }
 
   ],
