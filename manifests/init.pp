@@ -163,4 +163,12 @@ class profile_kolla_ansible {
     ensure  => 'present',
     require => Package['python3-pip'],
   }
+
+  $create_link = lookup ('profile_kolla_ansible::link_cluster_to_venv')
+  if $create_link {
+    file { "${kolla_deploy}/${cluster}":
+      ensure => 'link',
+      target => $kolla_venv,
+    }
+  }
 }
