@@ -16,12 +16,12 @@
 class profile_kolla_ansible {
   # Install dependencies
   $deps = [
-    "git",
-    "python3-devel",
-    "libffi-devel",
-    "gcc",
-    "openssl-devel",
-    "python3-libselinux",
+    'git',
+    'python3-devel',
+    'libffi-devel',
+    'gcc',
+    'openssl-devel',
+    'python3-libselinux',
   ]
 
   package { $deps:
@@ -37,7 +37,21 @@ class profile_kolla_ansible {
   }
 
   # Install Kolla VENV
-  $kolla_venv = '/opt/openstack/deploy/prod' # move to a lookup
+  # Get paths
+  $kolla_deploy = lookup('profile_kolla_ansible::deploy_dir')
+  if ( empty($kolla_deploy) ) {
+    fail ('No deploy directory specified. Cannot continue.')
+  }
+
+  $venv_dir = lookup('profile_kolla_ansible::env_dir')
+  if ( empty($venv_dir) ) {
+    fail ('No virtual environment directory specified. Cannot continue.')
+  }
+
+  #may need to precreate the kolla_deploy dir and make it a requirement here but
+  #have to check if pyenv supports that (or does the directory creation itself)
+  # Create the venv
+  $kolla_venv = "${kolla_deploy}/${venv_dir}"
   python::pyenv { $kolla_venv:
     ensure      => 'present',
     version     => 'system',
@@ -53,39 +67,72 @@ class profile_kolla_ansible {
     virtualenv => "${kolla_venv}",
   }
   
-  # Create kolla config directory
-  file { '/etc/kolla':
+  # Install config files
+  # Lookup repo location. Must be a legit file resource.
+  $cfg_src = lookup('profile_kolla_ansible::file_src')
+  if ( empty($cfg_src) ) {
+    fail ('No file repository defined for kolla configuration. Cannot continue.')
+  }
+
+  $kolla_etc = lookup('profile_kolla_ansible::etc_dir')
+  if ( empty($kolla_etc) ) {
+    notify ('Using default kolla-ansible directory: /etc/kolla')
+    $kolla_etc = '/etc/kolla'
+  }
+
+  # Determine which cluster files to install
+  $cluster = lookup('profile_kolla_ansible::cluster_name')
+  if ( empty($cluster) ) {
+    fail ('No cluster defined for kolla configuration. Cannot continue.')
+  }
+  
+  # Make sure the kolla config directory exists
+  file { $kolla_etc:
     ensure => 'directory',
     mode   => '0755',
     owner  => 'root',
     group  => 'root',
   }
 
-  # Install config files -- recommend we do this the same way as the globus-compute
-  # config files, using the puppet file resource from the xcat master httpd server
-  # ex
-  # # Lookup our required endpoint information
-  # $endpoint_name = lookup('profile_globus::compute_agent::endpoint_name')
-  # if ( empty($endpoint_name) ) {
-  #   fail ('No globus compute endpoint name defined. Cannot continue.')
-  # } else {
-  #   notify { 'endpoint_name':
-  #     message => "Setting globus compute endpoint name to ${endpoint_name}.",
-  #   }
-  # }
-  # ## The endpoint config file
-  #   file { 'ep_config':
-  #     ensure => file,
-  #     path   => "/root/.globus_compute/${endpoint_name}/config.yaml",
-  #     owner  => 'root',
-  #     group  => 'root',
-  #     mode   => '0600',
-  #     source => "${config_src}/endpoints/${endpoint_name}/config.yaml",
-  #   }
-  # globals.yml
-  # passwords.yml
+  # The global config file
+  file { 'globals.yml':
+    ensure => file,
+    path   => "${kolla_etc}/${cluster}/globals.yml",
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0600',
+    source => "${cfg_src}/${cluster}/globals.yml",
+  }
+
+  # The password file
+  file { 'passwords.yml':
+    ensure => file,
+    path   => "${kolla_etc}/${cluster}/passwords.yml",
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0600',
+    source => "${cfg_src}/${cluster}/passwords.yml",
+  }
+
+  # The admin-rc file
+  file { 'admin-openrc.sh':
+    ensure => file,
+    path   => "${kolla_etc}/${cluster}/admin-openrc.sh",
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0600',
+    source => "${cfg_src}/${cluster}/admin-openrc.sh",
+  }
+
   # multinode
-  # Other...???
+  file { 'multinode':
+    ensure => file,
+    path   => "${kolla_deploy}/multinode",
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0600',
+    source => "${cfg_src}/${cluster}/multinode",
+  }
 
   # This painful construct allows requiring that the venv is ready before
   # attempting to call kolla-ansible in it.
