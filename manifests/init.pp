@@ -56,7 +56,7 @@ class profile_kolla_ansible {
     ensure      => 'present',
     version     => 'system',
     systempkgs  => 'true',
-    venv_dir    => "${kolla_venv}",
+    venv_dir    => $kolla_venv,
     pip_version => 'latest',
   }
 
@@ -64,9 +64,9 @@ class profile_kolla_ansible {
   python::pip { 'kolla-ansible':
     ensure     => 'present',
     url        => 'git+https://opendev.org/openstack/kolla-ansible@master',
-    virtualenv => "${kolla_venv}",
+    virtualenv => $kolla_venv,
   }
-  
+
   # Install config files
   # Lookup repo location. Must be a legit file resource.
   $cfg_src = lookup('profile_kolla_ansible::file_src')
@@ -85,7 +85,7 @@ class profile_kolla_ansible {
   if ( empty($cluster) ) {
     fail ('No cluster defined for kolla configuration. Cannot continue.')
   }
-  
+
   # Make sure the kolla config directory exists
   file { $kolla_etc:
     ensure => 'directory',
@@ -147,21 +147,20 @@ class profile_kolla_ansible {
   # This painful construct allows requiring that the venv is ready before
   # attempting to call kolla-ansible in it.
   exec { 'has_kolla_venv':
-  command => '/bin/true',
-  onlyif  => "test -f ${kolla_venv}/pyvenv.cfg",
-}
+    command => '/bin/true',
+    onlyif  => "test -f ${kolla_venv}/pyvenv.cfg",
+  }
 
   # Install Ansible Galaxy (similar to puppet-forge)
   exec { 'ansible-galaxy':
     command => "source ${kolla_venv}/bin/activate ; kolla-ansible install-deps",
-    require => Package['python3'],
     creates => "${kolla_venv}/lib/python3.9/site-packages/ansible/galaxy",
     require => Exec['has_kolla_venv'],
   }
 
   # Install python openstack client
   python::pip { 'python-openstack':
-    ensure   => 'present',
-    require  => Package['python3-pip']
+    ensure  => 'present',
+    require => Package['python3-pip'],
   }
 }
