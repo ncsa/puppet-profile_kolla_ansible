@@ -134,6 +134,16 @@ class profile_kolla_ansible {
     source => "${cfg_src}/${cluster}/multinode",
   }
 
+  # Ansible config
+  file { 'ansible.cfg':
+    ensure => file,
+    path   => '/etc/ansible/ansible.cfg',
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0600',
+    source => "${cfg_src}/${cluster}/ansible.cfg",
+  }
+
   # This painful construct allows requiring that the venv is ready before
   # attempting to call kolla-ansible in it.
   exec { 'has_kolla_venv':
@@ -147,5 +157,11 @@ class profile_kolla_ansible {
     require => Package['python3'],
     creates => "${kolla_venv}/lib/python3.9/site-packages/ansible/galaxy",
     require => Exec['has_kolla_venv'],
+  }
+
+  # Install python openstack client
+  python::pip { 'python-openstack':
+    ensure   => 'present',
+    require  => Package['python3-pip']
   }
 }
