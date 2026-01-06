@@ -14,6 +14,7 @@
 # @example
 #   include profile_kolla_ansible
 class profile_kolla_ansible {
+  include stdlib
   include python
 
   # Install dependencies
@@ -27,9 +28,11 @@ class profile_kolla_ansible {
     'python3-libselinux',
   ]
 
-  package { $deps:
-    ensure => 'present',
-  }
+  # package { $deps:
+  #   ensure => 'present',
+  # }
+  # use ensure_packages to avoid duplicate package errors
+  stdlib::ensure_packages ($deps, { 'ensure' => 'present' })
 
   # Make sure we have python3 and latest pip
   # https://forge.puppet.com/modules/puppet/python/readme
