@@ -64,10 +64,10 @@ class profile_kolla_ansible {
   #have to check if pyenv supports that (or does the directory creation itself)
   # Create the venv
   $kolla_venv = "${kolla_deploy}/${venv_dir}"
-  python::pyenv { $kolla_venv:
+  python::pyvenv { $kolla_venv:
     ensure      => 'present',
     version     => 'system',
-    systempkgs  => 'true',
+    systempkgs  => true,
     venv_dir    => $kolla_venv,
     pip_version => 'latest',
   }
