@@ -32,7 +32,10 @@ class profile_kolla_ansible {
   #   ensure => 'present',
   # }
   # use ensure_packages to avoid duplicate package errors
-  stdlib::ensure_packages ($deps, { 'ensure' => 'present' })
+  # stdlib::ensure_packages ($deps, { 'ensure' => 'present' })
+  # NCSA modules are dependent on a pretty old stdlib version.
+  # Dropping namespaced call for the old version to work
+  ensure_packages($deps, { 'ensure' => 'present' })
 
   # Make sure we have python3 and latest pip
   # https://forge.puppet.com/modules/puppet/python/readme
