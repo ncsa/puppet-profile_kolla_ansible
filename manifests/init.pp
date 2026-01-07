@@ -14,19 +14,22 @@
 # @example
 #   include profile_kolla_ansible
 class profile_kolla_ansible {
-  include stdlib
+  #include stdlib
   include python
 
+# Unable to resolve duplicate declaration errors in the control repo. Taking
+# this out. Software package dependencies will have to be managed through
+# other, overlapping, package resources.
   # Install dependencies
   # https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html
-  $deps = [
-    'git',
-    'python3-devel',
-    'libffi-devel',
-    'gcc',
-    'openssl-devel',
-    'python3-libselinux',
-  ]
+  #$deps = [
+  # 'git',
+  #  'python3-devel',
+  #  'libffi-devel',
+  #  'gcc',
+  #  'openssl-devel',
+  #  'python3-libselinux',
+  #]
 
   # package { $deps:
   #   ensure => 'present',
@@ -35,7 +38,7 @@ class profile_kolla_ansible {
   # stdlib::ensure_packages ($deps, { 'ensure' => 'present' })
   # NCSA modules are dependent on a pretty old stdlib version.
   # Dropping namespaced call for the old version to work
-  ensure_packages($deps, { 'ensure' => 'present' })
+  # ensure_packages($deps, { 'ensure' => 'present' })
 
   # Make sure we have python3 and latest pip
   # https://forge.puppet.com/modules/puppet/python/readme
