@@ -42,11 +42,11 @@ class profile_kolla_ansible {
 
   # Make sure we have python3 and latest pip
   # https://forge.puppet.com/modules/puppet/python/readme
-  class { 'python':
-    version => 'system',
-    pip     => 'latest',
-    dev     => 'present',
-  }
+  # class { 'python':
+  #  version => 'system',
+  #  pip     => 'latest',
+  #  dev     => 'present',
+  # }
 
   # Install Kolla VENV
   # Get paths
@@ -160,20 +160,24 @@ class profile_kolla_ansible {
   # attempting to call kolla-ansible in it.
   exec { 'has_kolla_venv':
     command => '/bin/true',
-    onlyif  => "test -f ${kolla_venv}/pyvenv.cfg",
+    onlyif  => "/usr/bin/test -f ${kolla_venv}/pyvenv.cfg",
   }
 
   # Install Ansible Galaxy (similar to puppet-forge)
   exec { 'ansible-galaxy':
-    command => "source ${kolla_venv}/bin/activate ; kolla-ansible install-deps",
-    creates => "${kolla_venv}/lib/python3.9/site-packages/ansible/galaxy",
+    #command => "source ${kolla_venv}/bin/activate ; kolla-ansible install-deps",
+    #creates => "${kolla_venv}/lib/python3.9/site-packages/ansible/galaxy",
+    #require => Exec['has_kolla_venv'],
+    command => "${kolla_venv}/bin/python kolla-ansible install-deps",
+    cwd     => "${kolla_venv}",
     require => Exec['has_kolla_venv'],
+    creates => "${kolla_venv}/lib/python3.9/site-packages/ansible/galaxy",
   }
 
   # Install python openstack client
   python::pip { 'python-openstack':
     ensure  => 'present',
-    require => Package['python3-pip'],
+    #require => Package['python3-pip'],
   }
 
   $create_link = lookup ('profile_kolla_ansible::link_cluster_to_venv')
