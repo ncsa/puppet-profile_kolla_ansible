@@ -169,7 +169,7 @@ class profile_kolla_ansible {
     #creates => "${kolla_venv}/lib/python3.9/site-packages/ansible/galaxy",
     #require => Exec['has_kolla_venv'],
     command => "${kolla_venv}/bin/python kolla-ansible install-deps",
-    cwd     => "${kolla_venv}",
+    cwd     => $kolla_venv,
     require => Exec['has_kolla_venv'],
     creates => "${kolla_venv}/lib/python3.9/site-packages/ansible/galaxy",
   }
