@@ -55,7 +55,7 @@ class profile_kolla_ansible {
     fail ('No deploy directory specified. Cannot continue.')
   }
 
-  $venv_dir = lookup('profile_kolla_ansible::env_dir')
+  $venv_dir = lookup('profile_kolla_ansible::venv_dir')
   if ( empty($venv_dir) ) {
     fail ('No virtual environment directory specified. Cannot continue.')
   }
