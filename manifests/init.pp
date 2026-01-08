@@ -15,6 +15,7 @@
 #   include profile_kolla_ansible
 class profile_kolla_ansible {
   #include stdlib
+  include dirtree
   include python
 
 # Unable to resolve duplicate declaration errors in the control repo. Taking
@@ -72,6 +73,7 @@ class profile_kolla_ansible {
     pip_version => 'latest',
   }
 
+# Need to add configurable version overrides for KA and python...
   # Install Kolla-Ansible
   python::pip { 'kolla-ansible':
     ensure     => 'present',
@@ -107,11 +109,17 @@ class profile_kolla_ansible {
     group  => 'root',
   }
   
-  # Deepest part of this path...
-  $kolla_deploy_dirs = dirtree($kolla_venv)
+  $kolla_deploy_dirs = dirtree($kolla_deploy)
   file { $kolla_deploy_dirs:
     ensure => 'directory',
     #mode   => '0755',
+    owner  => 'root',
+    group  => 'root',
+  }
+
+  file { '/etc/ansible':
+    ensure => 'directory',
+    mode   => '0700',
     owner  => 'root',
     group  => 'root',
   }
