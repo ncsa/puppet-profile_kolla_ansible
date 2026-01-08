@@ -98,10 +98,20 @@ class profile_kolla_ansible {
     fail ('No cluster defined for kolla configuration. Cannot continue.')
   }
 
-  # Make sure the kolla config directory exists
-  file { $kolla_etc:
+  # Make sure the install directories exist
+  $kolla_etc_dirs = dirtree($kolla_etc)
+  file { $kolla_etc_dirs:
     ensure => 'directory',
-    mode   => '0755',
+    #mode   => '0755',
+    owner  => 'root',
+    group  => 'root',
+  }
+  
+  # Deepest part of this path...
+  $kolla_deploy_dirs = dirtree($kolla_venv)
+  file { $kolla_deploy_dirs:
+    ensure => 'directory',
+    #mode   => '0755',
     owner  => 'root',
     group  => 'root',
   }
@@ -109,7 +119,7 @@ class profile_kolla_ansible {
   # The global config file
   file { 'globals.yml':
     ensure => file,
-    path   => "${kolla_etc}/${cluster}/globals.yml",
+    path   => "${kolla_etc}/globals.yml",
     owner  => 'root',
     group  => 'root',
     mode   => '0600',
@@ -119,7 +129,7 @@ class profile_kolla_ansible {
   # The password file
   file { 'passwords.yml':
     ensure => file,
-    path   => "${kolla_etc}/${cluster}/passwords.yml",
+    path   => "${kolla_etc}/passwords.yml",
     owner  => 'root',
     group  => 'root',
     mode   => '0600',
@@ -129,7 +139,7 @@ class profile_kolla_ansible {
   # The admin-rc file
   file { 'admin-openrc.sh':
     ensure => file,
-    path   => "${kolla_etc}/${cluster}/admin-openrc.sh",
+    path   => "${kolla_etc}/admin-openrc.sh",
     owner  => 'root',
     group  => 'root',
     mode   => '0600',
