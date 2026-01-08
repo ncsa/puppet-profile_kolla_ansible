@@ -133,7 +133,7 @@ class profile_kolla_ansible {
     owner  => 'root',
     group  => 'root',
     mode   => '0600',
-    source => "${cfg_src}/${cluster}/admin-openrc.sh",
+    source => "${cfg_src}/${cluster}/kolla/admin-openrc.sh",
   }
 
   # multinode
