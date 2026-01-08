@@ -14,12 +14,11 @@
 # @example
 #   include profile_kolla_ansible
 class profile_kolla_ansible {
-  #include stdlib
   include dirtree
   include python
 
-# Unable to resolve duplicate declaration errors in the control repo. Taking
-# this out. Software package dependencies will have to be managed through
+# Unable to resolve duplicate declaration errors in the control repo.
+# Software package dependencies will have to be managed through
 # other, overlapping, package resources.
   # Install dependencies
   # https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html
@@ -29,25 +28,8 @@ class profile_kolla_ansible {
   #  'libffi-devel',
   #  'gcc',
   #  'openssl-devel',
-  #  'python3-libselinux',
+  #  'python3-libselinux',k
   #]
-
-  # package { $deps:
-  #   ensure => 'present',
-  # }
-  # use ensure_packages to avoid duplicate package errors
-  # stdlib::ensure_packages ($deps, { 'ensure' => 'present' })
-  # NCSA modules are dependent on a pretty old stdlib version.
-  # Dropping namespaced call for the old version to work
-  # ensure_packages($deps, { 'ensure' => 'present' })
-
-  # Make sure we have python3 and latest pip
-  # https://forge.puppet.com/modules/puppet/python/readme
-  # class { 'python':
-  #  version => 'system',
-  #  pip     => 'latest',
-  #  dev     => 'present',
-  # }
 
   # Install Kolla VENV
   # Get paths
@@ -61,8 +43,6 @@ class profile_kolla_ansible {
     fail ('No virtual environment directory specified. Cannot continue.')
   }
 
-  #may need to precreate the kolla_deploy dir and make it a requirement here but
-  #have to check if pyenv supports that (or does the directory creation itself)
   # Create the venv
   $kolla_venv = "${kolla_deploy}/${venv_dir}"
   python::pyvenv { $kolla_venv:
@@ -73,11 +53,20 @@ class profile_kolla_ansible {
     pip_version => 'latest',
   }
 
-# Need to add configurable version overrides for KA and python...
+  # Need to add configurable version overrides for KA, Ansible and python...
+  $ansible_version = "5.10.0"
+  # Install Anisble - Kolla does not do this.
+  python::pip { 'ansible':
+    ensure     => $ansible_version,
+    virtualenv => $kolla_venv,
+  }
+
+$ka_version = "14.11.0"
   # Install Kolla-Ansible
   python::pip { 'kolla-ansible':
-    ensure     => 'present',
-    url        => 'git+https://opendev.org/openstack/kolla-ansible@master',
+    ensure     => $ka_version,
+    #url        => 'git+https://opendev.org/openstack/kolla-ansible@master',
+    url        => 'git+https://opendev.org/openstack/kolla-ansible',
     virtualenv => $kolla_venv,
   }
 
@@ -126,76 +115,90 @@ class profile_kolla_ansible {
 
   # The global config file
   file { 'globals.yml':
-    ensure => file,
-    path   => "${kolla_etc}/globals.yml",
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0600',
-    source => "${cfg_src}/${cluster}/kolla/globals.yml",
+    ensure  => file,
+    path    => "${kolla_etc}/globals.yml",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0600',
+    source  => "${cfg_src}/${cluster}/kolla/globals.yml",
+    require => File[$kolla_etc],
   }
 
   # The password file
   file { 'passwords.yml':
-    ensure => file,
-    path   => "${kolla_etc}/passwords.yml",
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0600',
-    source => "${cfg_src}/${cluster}/kolla/passwords.yml",
+    ensure  => file,
+    path    => "${kolla_etc}/passwords.yml",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0600',
+    source  => "${cfg_src}/${cluster}/kolla/passwords.yml",
+    require => File[$kolla_etc],
   }
 
   # The admin-rc file
   file { 'admin-openrc.sh':
-    ensure => file,
-    path   => "${kolla_etc}/admin-openrc.sh",
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0600',
-    source => "${cfg_src}/${cluster}/kolla/admin-openrc.sh",
+    ensure  => file,
+    path    => "${kolla_etc}/admin-openrc.sh",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0600',
+    source  => "${cfg_src}/${cluster}/kolla/admin-openrc.sh",
+    require => File[$kolla_etc],
   }
 
   # multinode
   file { 'multinode':
-    ensure => file,
-    path   => "${kolla_deploy}/multinode",
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0600',
-    source => "${cfg_src}/${cluster}/kolla/multinode",
+    ensure  => file,
+    path    => "${kolla_deploy}/multinode",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0600',
+    source  => "${cfg_src}/${cluster}/kolla/multinode",
+    require => File[$kolla_deploy],
   }
 
   # Ansible config
   file { 'ansible.cfg':
-    ensure => file,
-    path   => '/etc/ansible/ansible.cfg',
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0600',
-    source => "${cfg_src}/${cluster}/ansible.cfg",
+    ensure  => file,
+    path    => '/etc/ansible/ansible.cfg',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0600',
+    source  => "${cfg_src}/${cluster}/ansible.cfg",
+    require => File['/etc/ansible'],
   }
 
-  # This painful construct allows requiring that the venv is ready before
-  # attempting to call kolla-ansible in it.
+  # This painful construct is for requiring various parts
+  # are ready to control ordering. There is probably a
+  # python class way to do this but this seems to work...
   exec { 'has_kolla_venv':
     command => '/bin/true',
     onlyif  => "/usr/bin/test -f ${kolla_venv}/pyvenv.cfg",
   }
+  exec { 'has_kolla_ansible':
+    command => '/bin/true',
+    onlyif  => "/usr/bin/test -f ${kolla_venv}/bin/kolla-ansible",
+  }
+  exec { 'has_ansible':
+    command => '/bin/true',
+    onlyif  => "/usr/bin/test -f ${kolla_venv}/bin/ansible",
+  }
 
   # Install Ansible Galaxy (similar to puppet-forge)
   exec { 'ansible-galaxy':
-    #command => "source ${kolla_venv}/bin/activate ; kolla-ansible install-deps",
-    #creates => "${kolla_venv}/lib/python3.9/site-packages/ansible/galaxy",
-    #require => Exec['has_kolla_venv'],
-    command => "${kolla_venv}/bin/python kolla-ansible install-deps",
+    command => "/bin/bash -c \". ${kolla_venv}/bin/activate && kolla-ansible install-deps\"",
     cwd     => $kolla_venv,
-    require => Exec['has_kolla_venv'],
+    require => [
+                  Exec['has_kolla_ansible'],
+                  Exec['has_ansible'],
+               ],
     creates => "${kolla_venv}/lib/python3.9/site-packages/ansible/galaxy",
   }
 
   # Install python openstack client
-  python::pip { 'python-openstack':
+  python::pip { 'python-openstackclient':
     ensure  => 'present',
-    #require => Package['python3-pip'],
+    require => Exec['has_kolla_venv'],
   }
 
   $create_link = lookup ('profile_kolla_ansible::link_cluster_to_venv')
