@@ -113,7 +113,7 @@ class profile_kolla_ansible {
     owner  => 'root',
     group  => 'root',
     mode   => '0600',
-    source => "${cfg_src}/${cluster}/globals.yml",
+    source => "${cfg_src}/${cluster}/kolla/globals.yml",
   }
 
   # The password file
@@ -123,7 +123,7 @@ class profile_kolla_ansible {
     owner  => 'root',
     group  => 'root',
     mode   => '0600',
-    source => "${cfg_src}/${cluster}/passwords.yml",
+    source => "${cfg_src}/${cluster}/kolla/passwords.yml",
   }
 
   # The admin-rc file
@@ -143,7 +143,7 @@ class profile_kolla_ansible {
     owner  => 'root',
     group  => 'root',
     mode   => '0600',
-    source => "${cfg_src}/${cluster}/multinode",
+    source => "${cfg_src}/${cluster}/kolla/multinode",
   }
 
   # Ansible config
