@@ -54,7 +54,7 @@ class profile_kolla_ansible {
   }
 
   # Need to add configurable version overrides for KA, Ansible and python...
-  $ansible_version = "5.10.0"
+  $ansible_version = '5.10.0'
   # Install Anisble - Kolla does not do this.
   python::pip { 'ansible':
     ensure     => $ansible_version,
@@ -62,15 +62,13 @@ class profile_kolla_ansible {
   }
 
   #$ka_version = "14.11.0"
-  $ka_version = "yoga_eol"
-  # Install Kolla-Ansible
-  python::pip { 'kolla-ansible':
-    #ensure      => 'present',
-    #url         => 'git+https://opendev.org/openstack/kolla-ansible@unmaintained/yoga',
-    ensure     => $ka_version,
-    #url        => 'git+https://opendev.org/openstack/kolla-ansible@master',
-    url        => 'git+https://opendev.org/openstack/kolla-ansible',
-    virtualenv => $kolla_venv,
+  # Install Kolla-Ansible (the pip module doesn't seem able to handle this)
+  $ka_version = 'yoga-eol' # The pip module does not suppport non-numeric tags.
+  exec { 'kolla-ansible':
+    command => "/bin/bash -c \". ${kolla_venv}/bin/activate && pip install git+https://opendev.org/openstack/kolla-ansible@${ka_version}\"",
+    cwd     => $kolla_venv,
+    require => Exec['has_kolla_venv'],
+    creates => "${kolla_venv}/bin/kolla-ansible",
   }
 
   # Install config files
@@ -100,7 +98,7 @@ class profile_kolla_ansible {
     owner  => 'root',
     group  => 'root',
   }
-  
+
   $kolla_deploy_dirs = dirtree($kolla_deploy)
   file { $kolla_deploy_dirs:
     ensure => 'directory',
