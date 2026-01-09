@@ -61,14 +61,15 @@ class profile_kolla_ansible {
     virtualenv => $kolla_venv,
   }
 
-  $ka_version = "14.11.0"
+  #$ka_version = "14.11.0"
+  $ka_version = "yoga_eol"
   # Install Kolla-Ansible
   python::pip { 'kolla-ansible':
-    ensure      => 'present',
-    url         => 'git+https://opendev.org/openstack/kolla-ansible@unmaintained/yoga',
-    #ensure     => $ka_version,
+    #ensure      => 'present',
+    #url         => 'git+https://opendev.org/openstack/kolla-ansible@unmaintained/yoga',
+    ensure     => $ka_version,
     #url        => 'git+https://opendev.org/openstack/kolla-ansible@master',
-    #url        => 'git+https://opendev.org/openstack/kolla-ansible',
+    url        => 'git+https://opendev.org/openstack/kolla-ansible',
     virtualenv => $kolla_venv,
   }
 
