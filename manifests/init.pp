@@ -61,7 +61,7 @@ class profile_kolla_ansible {
     virtualenv => $kolla_venv,
   }
 
-$ka_version = "14.11.0"
+  $ka_version = "14.11.0"
   # Install Kolla-Ansible
   python::pip { 'kolla-ansible':
     ensure      => 'present',
@@ -191,9 +191,9 @@ $ka_version = "14.11.0"
     command => "/bin/bash -c \". ${kolla_venv}/bin/activate && kolla-ansible install-deps\"",
     cwd     => $kolla_venv,
     require => [
-                  Exec['has_kolla_ansible'],
-                  Exec['has_ansible'],
-               ],
+      Exec['has_kolla_ansible'],
+      Exec['has_ansible'],
+    ],
     creates => "${kolla_venv}/lib/python3.9/site-packages/ansible/galaxy",
   }
 
