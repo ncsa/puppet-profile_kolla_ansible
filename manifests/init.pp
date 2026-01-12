@@ -59,6 +59,14 @@ class profile_kolla_ansible {
   python::pip { 'ansible':
     ensure     => $ansible_version,
     virtualenv => $kolla_venv,
+    require => Exec['has_kolla_venv'],
+  }
+
+  # It's not clear why this ins't getting installed so forcing it here.
+  python::pip { 'PyYAML':
+    ensure     => 'present',
+    virtualenv => $kolla_venv,
+    require => Exec['has_kolla_venv'],
   }
 
   #$ka_version = "14.11.0"
