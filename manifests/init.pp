@@ -177,6 +177,14 @@ class profile_kolla_ansible {
     require => File['/etc/ansible'],
   }
 
+  # Openstack config files
+  file { "${kolla_etc}/config":
+    ensure  => directory,
+    source  => "${cfg_src}/${cluster}/kolla/config",
+    recurse => remote,
+    require => File[$kolla_etc],
+  }
+
   # This painful construct is for requiring various parts
   # are ready to control ordering. There is probably a
   # python class way to do this but this seems to work...
