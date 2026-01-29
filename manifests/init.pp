@@ -1,7 +1,7 @@
 # @summary Install Kolla-Ansible and its configuration files.
 #
 # This will install all necessary software and kolla-ansible
-# itself to a system then sync the (already) configured 
+# itself to a system then sync the (already) configured
 # kolla configuration files. It will NOT execute kolla-ansible
 # EXCEPT to run 'install-deps'. Starting KA/Openstack is
 # left to the operator. Other necessary system configuration
@@ -28,7 +28,7 @@ class profile_kolla_ansible {
   #  'libffi-devel',
   #  'gcc',
   #  'openssl-devel',
-  #  'python3-libselinux',k
+  #  'python3-libselinux',
   #]
 
   # Install Kolla VENV
