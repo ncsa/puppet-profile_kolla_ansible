@@ -1,5 +1,5 @@
 # puppet-profile_kolla_ansible
-Install and configure Koll-Ansible deployment node.
+Install and configure Kolla-Ansible deployment node.
 
 Welcome to your new module. A short overview of the generated parts can be found
 in the [PDK documentation][1].
