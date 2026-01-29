@@ -53,11 +53,10 @@ class profile_kolla_ansible {
     pip_version => 'latest',
   }
 
-  # Need to add configurable version overrides for KA, Ansible and python...
-  $ansible_version = '5.10.0'
-  # Install Anisble - Kolla does not do this.
+  # Install Ansible - Kolla Ansible requires at least Ansible 4 and supports up to 5
+  # https://docs.openstack.org/kolla-ansible/yoga/user/quickstart.html
   python::pip { 'ansible':
-    ensure     => $ansible_version,
+    ensure     => '>=4,<6',
     virtualenv => $kolla_venv,
     require    => Exec['has_kolla_venv'],
   }
