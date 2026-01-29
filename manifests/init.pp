@@ -70,7 +70,7 @@ class profile_kolla_ansible {
     before     => Exec['kolla-ansible'],
   }
 
-  # Install Kolla-Ansible (the pip module doesn't support git+ URLs with branch names)
+  # Install Kolla-Ansible via exec since python::pip doesn't support git+ URLs with refs
   # https://docs.openstack.org/kolla-ansible/yoga/user/quickstart.html
   $ka_version = 'yoga-eol'
   exec { 'kolla-ansible':
