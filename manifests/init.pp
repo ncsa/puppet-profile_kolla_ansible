@@ -55,11 +55,12 @@ class profile_kolla_ansible {
 
   # Install Ansible - Kolla Ansible requires at least Ansible 4 and supports up to 5
   # https://docs.openstack.org/kolla-ansible/yoga/user/quickstart.html
-  python::pip { 'ansible':
-    ensure     => '>=4,<6',
-    virtualenv => $kolla_venv,
-    require    => Exec['has_kolla_venv'],
-    before     => Exec['kolla-ansible'],
+  exec { 'ansible':
+    command => "/bin/bash -c \". ${kolla_venv}/bin/activate && pip install 'ansible>=4,<6'\"",
+    cwd     => $kolla_venv,
+    require => Exec['has_kolla_venv'],
+    before  => Exec['kolla-ansible'],
+    creates => "${kolla_venv}/bin/ansible",
   }
 
   # PyYAML must be installed before kolla-ansible to ensure proper dependency resolution
