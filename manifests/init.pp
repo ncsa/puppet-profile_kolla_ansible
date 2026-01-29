@@ -209,10 +209,13 @@ class profile_kolla_ansible {
     creates => "${kolla_venv}/lib/python3.9/site-packages/ansible/galaxy",
   }
 
-  # Install python openstack client
-  python::pip { 'python-openstackclient':
-    ensure  => 'present',
+  # Install python openstack client in the venv with yoga constraints
+  # https://docs.openstack.org/kolla-ansible/yoga/user/quickstart.html
+  exec { 'python-openstackclient':
+    command => "/bin/bash -c \". ${kolla_venv}/bin/activate && pip install python-openstackclient -c https://releases.openstack.org/constraints/upper/yoga\"",
+    cwd     => $kolla_venv,
     require => Exec['has_kolla_venv'],
+    creates => "${kolla_venv}/bin/openstack",
   }
 
   $create_link = lookup ('profile_kolla_ansible::link_cluster_to_venv')
