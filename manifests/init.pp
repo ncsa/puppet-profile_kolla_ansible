@@ -223,7 +223,7 @@ class profile_kolla_ansible {
     file { "${kolla_deploy}/${cluster}":
       ensure  => 'link',
       target  => $kolla_venv,
-      require => File[$kolla_venv],
+      require => Python::Pyvenv[$kolla_venv],
     }
   }
 }
