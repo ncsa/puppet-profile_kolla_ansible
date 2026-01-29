@@ -59,20 +59,22 @@ class profile_kolla_ansible {
     ensure     => '>=4,<6',
     virtualenv => $kolla_venv,
     require    => Exec['has_kolla_venv'],
+    before     => Exec['kolla-ansible'],
   }
 
-  # It's not clear why this ins't getting installed so forcing it here.
+  # PyYAML must be installed before kolla-ansible to ensure proper dependency resolution
   python::pip { 'PyYAML':
     ensure     => 'present',
     virtualenv => $kolla_venv,
     require    => Exec['has_kolla_venv'],
+    before     => Exec['kolla-ansible'],
   }
 
-  #$ka_version = "14.11.0"
-  # Install Kolla-Ansible (the pip module doesn't seem able to handle this)
-  $ka_version = 'yoga-eol' # The pip module does not suppport non-numeric tags.
+  # Install Kolla-Ansible (the pip module doesn't support git+ URLs with branch names)
+  # https://docs.openstack.org/kolla-ansible/yoga/user/quickstart.html
+  $ka_version = 'yoga-eol'
   exec { 'kolla-ansible':
-    command => "/bin/bash -c \". ${kolla_venv}/bin/activate && pip install git+https://opendev.org/openstack/kolla-ansible@${ka_version}\"",
+    command => "/bin/bash -c \". ${kolla_venv}/bin/activate && pip install 'git+https://opendev.org/openstack/kolla-ansible@${ka_version}'\"",
     cwd     => $kolla_venv,
     require => Exec['has_kolla_venv'],
     creates => "${kolla_venv}/bin/kolla-ansible",
