@@ -206,7 +206,7 @@ class profile_kolla_ansible {
       Exec['has_kolla_ansible'],
       Exec['has_ansible'],
     ],
-    creates => "${kolla_venv}/lib/python3.9/site-packages/ansible/galaxy",
+    unless  => "/usr/bin/test -d ${kolla_venv}/share/kolla-ansible",
   }
 
   # Install python openstack client in the venv with yoga constraints
