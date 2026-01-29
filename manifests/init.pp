@@ -219,6 +219,14 @@ class profile_kolla_ansible {
     creates => "${kolla_venv}/bin/openstack",
   }
 
+  # Install osc-placement for nova placement API
+  exec { 'osc-placement':
+    command => "/bin/bash -c \". ${kolla_venv}/bin/activate && pip install osc-placement -c https://releases.openstack.org/constraints/upper/yoga\"",
+    cwd     => $kolla_venv,
+    require => Exec['python-openstackclient'],
+    unless  => "/bin/bash -c \". ${kolla_venv}/bin/activate && pip show osc-placement\"",
+  }
+
   $create_link = lookup ('profile_kolla_ansible::link_cluster_to_venv')
   if $create_link {
     file { "${kolla_deploy}/${cluster}":
