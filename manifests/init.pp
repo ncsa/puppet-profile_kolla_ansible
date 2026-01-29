@@ -86,11 +86,7 @@ class profile_kolla_ansible {
     fail ('No file repository defined for kolla configuration. Cannot continue.')
   }
 
-  $kolla_etc = lookup('profile_kolla_ansible::etc_dir')
-  if ( empty($kolla_etc) ) {
-    notify ('Using default kolla-ansible directory: /etc/kolla')
-    $kolla_etc = '/etc/kolla'
-  }
+  $kolla_etc = lookup('profile_kolla_ansible::etc_dir', default_value => '/etc/kolla')
 
   # Determine which cluster files to install
   $cluster = lookup('profile_kolla_ansible::cluster_name')
