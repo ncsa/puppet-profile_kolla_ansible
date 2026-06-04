@@ -88,7 +88,7 @@ class profile_kolla_ansible {
     fail ('No file repository defined for kolla configuration. Cannot continue.')
   }
 
-  $kolla_etc = lookup('profile_kolla_ansible::etc_dir', default_value => '/etc/kolla')
+ # $kolla_etc = lookup('profile_kolla_ansible::etc_dir', default_value => '/etc/kolla')
 
   # Determine which cluster files to install
   $cluster = lookup('profile_kolla_ansible::cluster_name')
@@ -96,14 +96,14 @@ class profile_kolla_ansible {
     fail ('No cluster defined for kolla configuration. Cannot continue.')
   }
 
-  # Make sure the install directories exist
-  $kolla_etc_dirs = dirtree($kolla_etc)
-  file { $kolla_etc_dirs:
-    ensure => 'directory',
-    #mode   => '0755',
-    owner  => 'root',
-    group  => 'root',
-  }
+  # # Make sure the install directories exist
+  # $kolla_etc_dirs = dirtree($kolla_etc)
+  # file { $kolla_etc_dirs:
+  #   ensure => 'directory',
+  #   #mode   => '0755',
+  #   owner  => 'root',
+  #   group  => 'root',
+  # }
 
   $kolla_deploy_dirs = dirtree($kolla_deploy)
   file { $kolla_deploy_dirs:
@@ -120,38 +120,38 @@ class profile_kolla_ansible {
     group  => 'root',
   }
 
-  # The global config file
-  file { 'globals.yml':
-    ensure  => file,
-    path    => "${kolla_etc}/globals.yml",
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0600',
-    source  => "${cfg_src}/${cluster}/kolla/globals.yml",
-    require => File[$kolla_etc],
-  }
+  # # The global config file
+  # file { 'globals.yml':
+  #   ensure  => file,
+  #   path    => "${kolla_etc}/globals.yml",
+  #   owner   => 'root',
+  #   group   => 'root',
+  #   mode    => '0600',
+  #   source  => "${cfg_src}/${cluster}/kolla/globals.yml",
+  #   require => File[$kolla_etc],
+  # }
 
-  # The password file
-  file { 'passwords.yml':
-    ensure  => file,
-    path    => "${kolla_etc}/passwords.yml",
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0600',
-    source  => "${cfg_src}/${cluster}/kolla/passwords.yml",
-    require => File[$kolla_etc],
-  }
+  # # The password file
+  # file { 'passwords.yml':
+  #   ensure  => file,
+  #   path    => "${kolla_etc}/passwords.yml",
+  #   owner   => 'root',
+  #   group   => 'root',
+  #   mode    => '0600',
+  #   source  => "${cfg_src}/${cluster}/kolla/passwords.yml",
+  #   require => File[$kolla_etc],
+  # }
 
-  # The admin-rc file
-  file { 'admin-openrc.sh':
-    ensure  => file,
-    path    => "${kolla_etc}/admin-openrc.sh",
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0600',
-    source  => "${cfg_src}/${cluster}/kolla/admin-openrc.sh",
-    require => File[$kolla_etc],
-  }
+  # # The admin-rc file
+  # file { 'admin-openrc.sh':
+  #   ensure  => file,
+  #   path    => "${kolla_etc}/admin-openrc.sh",
+  #   owner   => 'root',
+  #   group   => 'root',
+  #   mode    => '0600',
+  #   source  => "${cfg_src}/${cluster}/kolla/admin-openrc.sh",
+  #   require => File[$kolla_etc],
+  # }
 
   # multinode
   file { 'multinode':
@@ -175,13 +175,13 @@ class profile_kolla_ansible {
     require => File['/etc/ansible'],
   }
 
-  # Openstack config files
-  file { "${kolla_etc}/config":
-    ensure  => directory,
-    source  => "${cfg_src}/${cluster}/kolla/config",
-    recurse => remote,
-    require => File[$kolla_etc],
-  }
+  # # Openstack config files
+  # file { "${kolla_etc}/config":
+  #   ensure  => directory,
+  #   source  => "${cfg_src}/${cluster}/kolla/config",
+  #   recurse => remote,
+  #   require => File[$kolla_etc],
+  # }
 
   # This painful construct is for requiring various parts
   # are ready to control ordering. There is probably a
